@@ -1,19 +1,67 @@
 {
   "name": "@ext-browser/messaging",
   "version": "0.0.1",
-  "description": "",
-  "main": "index.js",
+  "description": "Broswer Extension Messaging APIs Made Easy",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "rollup -c",
+    "dev": "rollup -c --environment BUILD:development",
+    "dev:watch": "npm run dev -- --watch",
+    "lint": "eslint",
+    "lint:fix": "npm run lint -- --fix"
+  },
+  "type": "module",
+  "exports": {
+    ".": {
+      "import": "./dist/index.esm.js",
+      "require": "./dist/index.cjs.js"
+    },
+    "./background": {
+      "import": "./dist/background/index.esm.js",
+      "require": "./dist/background/index.cjs.js"
+    },
+    "./content": {
+      "import": "./dist/content/index.esm.js",
+      "require": "./dist/content/index.cjs.js"
+    },
+    "./devtools": {
+      "import": "./dist/devtools/index.esm.js",
+      "require": "./dist/devtools/index.cjs.js"
+    },
+    "./popup": {
+      "import": "./dist/popup/index.esm.js",
+      "require": "./dist/popup/index.cjs.js"
+    },
+    "./sidepanel": {
+      "import": "./dist/sidepanel/index.esm.js",
+      "require": "./dist/sidepanel/index.cjs.js"
+    }
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/ext-browser/messaging.git"
   },
-  "author": "",
-  "license": "ISC",
+  "author": "Deep Patel <deeppatel234@gmail.com>",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/ext-browser/messaging/issues"
   },
-  "homepage": "https://github.com/ext-browser/messaging#readme"
+  "homepage": "https://github.com/ext-browser/messaging#readme",
+  "devDependencies": {
+    "@babel/cli": "^7.24.1",
+    "@babel/core": "^7.24.4",
+    "@babel/eslint-parser": "^7.24.1",
+    "@babel/preset-env": "^7.24.4",
+    "@eslint/eslintrc": "^3.0.2",
+    "@eslint/js": "^9.0.0",
+    "@rollup/plugin-babel": "^6.0.4",
+    "@rollup/plugin-terser": "^0.4.4",
+    "eslint": "^8.57.0",
+    "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-import": "^2.29.1",
+    "eslint-plugin-prettier": "^5.1.3",
+    "globals": "^15.0.0",
+    "prettier": "^3.2.5",
+    "rollup": "^4.14.2"
+  }
 }
