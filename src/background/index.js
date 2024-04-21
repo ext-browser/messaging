@@ -1,1 +1,1 @@
-export * from "../myFile";
+export * from "./handler";
