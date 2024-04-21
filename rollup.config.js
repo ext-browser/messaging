@@ -1,46 +1,33 @@
-import terser from '@rollup/plugin-terser';
-import { babel } from '@rollup/plugin-babel';
+import terser from "@rollup/plugin-terser";
+import { babel } from "@rollup/plugin-babel";
 
-const isDevelopment = process.env.BUILD === 'development';
+const isDevelopment = process.env.BUILD === "development";
 
-let outputs = [
-  {
-    file: 'dist/index.cjs.js',
-    format: 'cjs',
-  },
-  {
-    file: 'dist/index.esm.js',
-    format: 'esm',
-  },
-];
-
-const dirs = ['background', 'content', 'popup', 'sidepanel', 'devtools'];
-
-outputs.push(
-  ...dirs.map((dir) => {
-    return [
-      {
-        file: `dist/${dir}/index.cjs.js`,
-        format: 'cjs',
-      },
-      {
-        file: `dist/${dir}/index.esm.js`,
-        format: 'esm',
-      },
-    ];
-  }),
-);
-
-outputs = outputs.flat();
-
-const plugins = [babel({ babelHelpers: 'bundled' })];
-
-if (!isDevelopment) {
-  plugins.push(terser());
-}
+const prodPlugins = [babel({ babelHelpers: "bundled" }), terser()];
+const devPlugins = [babel({ babelHelpers: "bundled", sourceMaps: true })];
 
 export default {
-  input: 'src/index.js',
-  output: outputs,
-  plugins,
+  input: {
+    index: "src/index.js",
+    "background/index": "src/background/index.js",
+    "content/index": "src/content/index.js",
+    "popup/index": "src/popup/index.js",
+    "sidepanel/index": "src/sidepanel/index.js",
+    "devtools/index": "src/devtools/index.js",
+  },
+  output: [
+    {
+      format: "es",
+      dir: "dist",
+      entryFileNames: '[name].esm.js',
+      sourcemap: isDevelopment,
+    },
+    {
+      format: "cjs",
+      dir: "dist",
+      entryFileNames: '[name].cjs.js',
+      sourcemap: isDevelopment,
+    },
+  ],
+  plugins: isDevelopment ? devPlugins : prodPlugins,
 };
