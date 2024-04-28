@@ -14,6 +14,7 @@ export default {
     "popup/index": "src/popup/index.js",
     "sidepanel/index": "src/sidepanel/index.js",
     "devtools/index": "src/devtools/index.js",
+    "contentWindow/index": "src/contentWindow/index.js",
   },
   output: [
     {
@@ -29,5 +30,5 @@ export default {
       sourcemap: isDevelopment,
     },
   ],
-  plugins: isDevelopment ? devPlugins : prodPlugins,
+  // plugins: isDevelopment ? devPlugins : prodPlugins,
 };

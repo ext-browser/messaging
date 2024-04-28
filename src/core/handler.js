@@ -3,8 +3,7 @@ export const getHandlers = (name) => {
 
   return {
     onMessage: (eventName, callback) => {
-      port.onMessage.addListener((event, sender, sendResponse) => {
-        console.log(event, sender, sendResponse);
+      port.onMessage.addListener((event) => {
         if (event.eventName === eventName) {
           callback(JSON.parse(event.eventData));
         }

@@ -5,12 +5,18 @@ const callbackMap = new Map();
 
 export const initMessaging = () => {
   chrome.runtime.onConnect.addListener((port) => {
-    portMap.set(port.name, port);
+    let portName = port.name;
+
+    if (portName === "content" || portName === "devtool") {
+      portName = `${portName}:${port.sender.tab.id}`;
+    }
+
+    portMap.set(portName, port);
 
     port.onMessage.addListener(async (event) => {
       if (event.to === "background") {
         if (callbackMap.has(event.eventName)) {
-          callbackMap.get(event.eventName)(event);
+          callbackMap.get(event.eventName)(event, port);
         }
       } else if (event.to.includes(":")) {
         const [to, tabId] = event.to.split(":");

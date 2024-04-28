@@ -23,6 +23,10 @@
       "import": "./dist/content/index.esm.js",
       "require": "./dist/content/index.cjs.js"
     },
+    "./contentWindow": {
+      "import": "./dist/contentWindow/index.esm.js",
+      "require": "./dist/contentWindow/index.cjs.js"
+    },
     "./devtools": {
       "import": "./dist/devtools/index.esm.js",
       "require": "./dist/devtools/index.cjs.js"
