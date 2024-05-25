@@ -10,14 +10,14 @@ export const getWindowHandlers = ({ sendType, reciverType }) => {
           event?.data?.type === reciverType &&
           event?.data.eventName === eventName
         ) {
-          const parsedData = JSON.parse(event.data?.eventData);
+          const parsedData = event.data?.eventData;
 
-          callback(parsedData);
+          callback(parsedData, event);
         }
       });
     },
     sendMessage: (eventName, data) => {
-      const eventData = JSON.stringify(data);
+      const eventData = data;
 
       window.postMessage(
         {

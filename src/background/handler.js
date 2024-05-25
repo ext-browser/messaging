@@ -7,7 +7,7 @@ export const initMessaging = () => {
   chrome.runtime.onConnect.addListener((port) => {
     let portName = port.name;
 
-    if (portName === "content" || portName === "devtool") {
+    if (portName === "content") {
       portName = `${portName}:${port.sender.tab.id}`;
     }
 
@@ -16,7 +16,12 @@ export const initMessaging = () => {
     port.onMessage.addListener(async (event) => {
       if (event.to === "background") {
         if (callbackMap.has(event.eventName)) {
-          callbackMap.get(event.eventName)(event, port);
+          callbackMap.get(event.eventName)(event.eventData, {
+            event,
+            port,
+            sender: port.sender,
+            senderTab: port.sender.tab,
+          });
         }
       } else if (event.to.includes(":")) {
         const [to, tabId] = event.to.split(":");
@@ -42,7 +47,7 @@ export const onMessage = (eventName, callback) => {
 
 export const sendMessage = (to, eventName, data) => {
   if (portMap.has(to)) {
-    const eventData = JSON.stringify(data);
+    const eventData = data;
 
     portMap.get(to).postMessage({ to, eventName, eventData });
   }

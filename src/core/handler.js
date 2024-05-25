@@ -5,12 +5,12 @@ export const getHandlers = (name) => {
     onMessage: (eventName, callback) => {
       port.onMessage.addListener((event) => {
         if (event.eventName === eventName) {
-          callback(JSON.parse(event.eventData));
+          callback(event.eventData, event);
         }
       });
     },
     sendMessage: (to, eventName, data) => {
-      const eventData = JSON.stringify(data);
+      const eventData = data;
 
       port.postMessage({ to, eventName, eventData });
     },
