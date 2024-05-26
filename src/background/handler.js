@@ -3,6 +3,33 @@ import { getCurrentTab } from "../core/utils";
 const portMap = new Map();
 const callbackMap = new Map();
 
+const computePortName = async (portName) => {
+  if (portName.includes(":")) {
+    const [to, tabId] = portName.split(":");
+
+    if (tabId === "active") {
+      const tab = await getCurrentTab();
+      return `${to}:${tab.id}`;
+    }
+  }
+
+  return portName;
+};
+
+const postEvent = (cbMap, mapKey, { portName, event, port }) => {
+  const eventParams = {
+    ...event,
+    event,
+    from: portName,
+    port,
+    sender: port.sender,
+  };
+
+  if (cbMap.has(mapKey)) {
+    cbMap.get(mapKey).postMessage(eventParams);
+  }
+};
+
 export const initMessaging = () => {
   chrome.runtime.onConnect.addListener((port) => {
     let portName = port.name;
@@ -15,40 +42,54 @@ export const initMessaging = () => {
 
     port.onMessage.addListener(async (event) => {
       if (event.to === "background") {
-        if (callbackMap.has(event.eventName)) {
-          callbackMap.get(event.eventName)(event.eventData, {
-            event,
-            port,
-            sender: port.sender,
-            senderTab: port.sender.tab,
-          });
-        }
-      } else if (event.to.includes(":")) {
-        const [to, tabId] = event.to.split(":");
-
-        if (tabId === "active") {
-          const tab = await getCurrentTab();
-          if (portMap.has(`${to}:${tab.id}`)) {
-            portMap.get(`${to}:${tab.id}`).postMessage(event);
-          }
-        } else if (portMap.has(event.to)) {
-          portMap.get(event.to).postMessage(event);
-        }
-      } else if (portMap.has(event.to)) {
-        portMap.get(event.to).postMessage(event);
+        postEvent(callbackMap, event.eventName, { event, port, portName });
+      } else {
+        const to = await computePortName(event.to);
+        postEvent(portMap, to, { event, port, portName });
       }
+    });
+
+    port.onDisconnect.addListener(() => {
+      portMap.delete(portName);
     });
   });
 };
 
 export const onMessage = (eventName, callback) => {
-  callbackMap.set(eventName, callback);
+  callbackMap.set(eventName, {
+    postMessage: async (event) => {
+      const response = await callback(event.eventData, event);
+
+      event.port.postMessage({
+        ...event,
+        to: event.from,
+        eventName: `${event.eventName}::RESPONSE`,
+        eventData: response,
+      });
+    },
+  });
 };
 
-export const sendMessage = (to, eventName, data) => {
-  if (portMap.has(to)) {
-    const eventData = data;
+export const sendMessage = async (to, eventName, data) => {
+  const toPort = await computePortName(to);
 
-    portMap.get(to).postMessage({ to, eventName, eventData });
-  }
+  postEvent(portMap, toPort, {
+    event: { to, eventName, eventData: data },
+    port: {
+      name: "background",
+      sender: { tab: { type: "background", id: null } },
+      postMessage: (eventToPost) => {
+        if (portMap.has(eventToPost.from)) {
+          portMap.get(eventToPost.from).postMessage(eventToPost);
+        }
+      },
+    },
+    portName: "background",
+  });
+
+  return new Promise((resolve) => {
+    onMessage(`${eventName}::RESPONSE`, (event) => {
+      resolve(event.eventData, event);
+    });
+  });
 };
