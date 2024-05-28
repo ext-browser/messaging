@@ -4,14 +4,19 @@ export const getPort = (name) => {
   const callbackList = [];
   let sendEvent = null;
 
-  return {
+  const port = {
     name,
     sender: { type: name, tab: { id: null } },
     setSendEvent: (newSendEvent) => {
       sendEvent = newSendEvent;
     },
-    postMessage: (...args) => {
-      sendEvent(...args);
+    postMessage: (eventToPost) => {
+      sendEvent({
+        ...eventToPost,
+        from: name,
+        port,
+        sender: port.sender,
+      });
     },
     postInternalMessage: (eventToPost) => {
       callbackList.forEach((callback) => {
@@ -35,4 +40,6 @@ export const getPort = (name) => {
       removeListener: () => {},
     },
   };
+
+  return port;
 };

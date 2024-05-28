@@ -5,5 +5,3 @@ const messagingPort = getMessagingPort(`devtool:${chrome.devtools.inspectedWindo
 
 export const onMessage = messagingPort.onMessage;
 export const sendMessage = messagingPort.sendMessage;
-export const sendMessageWithResponse = messagingPort.sendMessageWithResponse;
-export const onMessageWithResponse = messagingPort.onMessageWithResponse;

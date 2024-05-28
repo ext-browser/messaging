@@ -15,5 +15,3 @@ export const initMessaging = handlers.initMessaging;
 
 export const onMessage = messagingPort.onMessage;
 export const sendMessage = messagingPort.sendMessage;
-export const sendMessageWithResponse = messagingPort.sendMessageWithResponse;
-export const onMessageWithResponse = messagingPort.onMessageWithResponse;
