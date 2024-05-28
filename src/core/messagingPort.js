@@ -48,7 +48,7 @@ export const getMessagingPort = (name, customPort) => {
         port.postMessage({ to, eventName, eventData });
 
         if (withResponse) {
-          return Promise.race(
+          return Promise.race([
             new Promise((resolve, reject) => {
               port.onMessage.addListener((event) => {
                 if (event.eventName === `${eventName}::RESPONSE`) {
@@ -60,7 +60,7 @@ export const getMessagingPort = (name, customPort) => {
               });
             }),
             timeOutPromise(30000),
-          );
+          ]);
         }
       };
     };

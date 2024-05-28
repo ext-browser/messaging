@@ -6,13 +6,19 @@ export const getHandlers = () => {
 
   const sendEvent = async (event) => {
     const to = await computePortName(event.to);
-
     if (portMap.has(to)) {
       if (portMap.get(to).postInternalMessage) {
         portMap.get(to).postInternalMessage(event);
       } else {
         portMap.get(to).postMessage(event);
       }
+    } else {
+      event.port.postMessage({
+        ...event,
+        to: event.from,
+        eventName: `${event.eventName}::RESPONSE_ERROR`,
+        eventData: "Port not found",
+      });
     }
   };
 
