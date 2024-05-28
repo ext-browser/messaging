@@ -4,6 +4,18 @@ import { computePortName } from "./utils";
 export const getHandlers = () => {
   const portMap = new Map();
 
+  const sendEvent = async (event) => {
+    const to = await computePortName(event.to);
+
+    if (portMap.has(to)) {
+      if (portMap.get(to).postInternalMessage) {
+        portMap.get(to).postInternalMessage(event);
+      } else {
+        portMap.get(to).postMessage(event);
+      }
+    }
+  };
+
   const initMessaging = () => {
     chrome.runtime.onConnect.addListener((port) => {
       let portName = port.name;
@@ -15,22 +27,13 @@ export const getHandlers = () => {
       portMap.set(portName, port);
 
       port.onMessage.addListener(async (event) => {
-        const to = await computePortName(event.to);
-        const eventParams = {
+        sendEvent({
           ...event,
           event,
           from: portName,
           port,
           sender: port.sender,
-        };
-
-        if (portMap.has(to)) {
-          if (portMap.get(to).postInternalMessage) {
-            portMap.get(to).postInternalMessage(eventParams);
-          } else {
-            portMap.get(to).postMessage(eventParams);
-          }
-        }
+        });
       });
 
       port.onDisconnect.addListener(() => {
@@ -41,8 +44,8 @@ export const getHandlers = () => {
 
   const setPort = (portName, port) => {
     portMap.set(portName, port);
-    if (port.setPortMap) {
-      port.setPortMap(portMap);
+    if (port.setSendEvent) {
+      port.setSendEvent(sendEvent);
     }
   };
 

@@ -1,24 +1,17 @@
 /* eslint-disable arrow-body-style */
-import { computePortName } from "./utils";
 
 export const getPort = (name) => {
   const callbackList = [];
-  let portMap = null;
+  let sendEvent = null;
 
   return {
     name,
-    sender: { tab: { type: name, id: 1 } },
-    setPortMap: (newPortMap) => {
-      portMap = newPortMap;
+    sender: { type: name, tab: { id: null } },
+    setSendEvent: (newSendEvent) => {
+      sendEvent = newSendEvent;
     },
-    postMessage: async (eventToPost) => {
-      const to = await computePortName(eventToPost.to);
-
-      if (portMap.has(to)) {
-        portMap.get(to).postMessage(eventToPost);
-      } else {
-        // throw error
-      }
+    postMessage: (...args) => {
+      sendEvent(...args);
     },
     postInternalMessage: (eventToPost) => {
       callbackList.forEach((callback) => {
