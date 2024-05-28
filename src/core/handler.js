@@ -1,4 +1,5 @@
 /* eslint-disable arrow-body-style */
+import { timeOutPromise } from "./utils";
 
 export const getHandlers = (name) => {
   let port = null;
@@ -12,15 +13,26 @@ export const getHandlers = (name) => {
       return (eventName, callback) => {
         port.onMessage.addListener(async (event) => {
           if (event.eventName === eventName) {
-            const response = await callback(event.eventData, event);
+            try {
+              const response = await callback(event.eventData, event);
 
-            if (withResponse) {
-              port.postMessage({
-                ...event,
-                to: event.from,
-                eventName: `${event.eventName}::RESPONSE`,
-                eventData: response,
-              });
+              if (withResponse) {
+                port.postMessage({
+                  ...event,
+                  to: event.from,
+                  eventName: `${event.eventName}::RESPONSE`,
+                  eventData: response,
+                });
+              }
+            } catch (error) {
+              if (withResponse) {
+                port.postMessage({
+                  ...event,
+                  to: event.from,
+                  eventName: `${event.eventName}::RESPONSE_ERROR`,
+                  eventData: error,
+                });
+              }
             }
           }
         });
@@ -32,13 +44,19 @@ export const getHandlers = (name) => {
         port.postMessage({ to, eventName, eventData });
 
         if (withResponse) {
-          return new Promise((resolve) => {
-            port.onMessage.addListener((event) => {
-              if (event.eventName === `${eventName}::RESPONSE`) {
-                resolve(event.eventData, event);
-              }
-            });
-          });
+          return Promise.race(
+            new Promise((resolve, reject) => {
+              port.onMessage.addListener((event) => {
+                if (event.eventName === `${eventName}::RESPONSE`) {
+                  resolve(event.eventData, event);
+                }
+                if (event.eventName === `${eventName}::RESPONSE_ERROR`) {
+                  reject(event.eventData, event);
+                }
+              });
+            }),
+            timeOutPromise(30000),
+          );
         }
       };
     };

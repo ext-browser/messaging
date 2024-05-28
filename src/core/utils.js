@@ -21,3 +21,22 @@ export const getAllTabs = async () => {
 };
 
 export const isMessageLenghtExceeded = (message) => message.includes("Message length exceeded maximum allowed length");
+
+export const timeOutPromise = (time) => new Promise((resolve, reject) => {
+  setTimeout(() => {
+    reject(new Error("Timeout"));
+  }, time)
+});
+
+export const computePortName = async (portName) => {
+  if (portName.includes(":")) {
+    const [to, tabId] = portName.split(":");
+
+    if (tabId === "active") {
+      const tab = await getCurrentTab();
+      return `${to}:${tab.id}`;
+    }
+  }
+
+  return portName;
+};
