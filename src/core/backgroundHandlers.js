@@ -4,59 +4,58 @@ import { computePortName } from "./utils";
 export const getHandlers = () => {
   const portMap = new Map();
 
-  const sendEvent = async (event) => {
-    const to = await computePortName(event.to);
-    if (portMap.has(to)) {
-      if (portMap.get(to).postInternalMessage) {
-        portMap.get(to).postInternalMessage(event);
-      } else {
-        portMap.get(to).postMessage(event);
-      }
-    } else {
-      event.port.postMessage({
+  const onConnect = (port) => {
+    let portName = port.name;
+
+    if (portName === "content") {
+      portName = `${portName}:${port.sender.tab.id}`;
+    }
+
+    portMap.set(portName, port);
+
+    const sendEvent = async (event) => {
+      const to = await computePortName(event.to);
+      const eventToSend = {
         ...event,
-        to: event.from,
-        eventName: `${event.eventName}::RESPONSE_ERROR`,
-        eventData: "Port not found",
+        event,
+        from: portName,
+        port,
+        sender: port.sender,
+      };
+
+      if (portMap.has(to)) {
+        if (portMap.get(to).postInternalMessage) {
+          portMap.get(to).postInternalMessage(eventToSend);
+        } else {
+          portMap.get(to).postMessage(eventToSend);
+        }
+      } else {
+        eventToSend.port.postMessage({
+          ...eventToSend,
+          to: eventToSend.from,
+          eventName: `${eventToSend.eventName}::RESPONSE_ERROR`,
+          eventData: "Port not found",
+        });
+      }
+    };
+
+    if (port.isInternalPort) {
+      port.setSendEvent(sendEvent);
+    } else {
+      port.onMessage.addListener(sendEvent);
+
+      port.onDisconnect.addListener(() => {
+        portMap.delete(portName);
       });
     }
   };
 
   const initMessaging = () => {
-    chrome.runtime.onConnect.addListener((port) => {
-      let portName = port.name;
-
-      if (portName === "content") {
-        portName = `${portName}:${port.sender.tab.id}`;
-      }
-
-      portMap.set(portName, port);
-
-      port.onMessage.addListener(async (event) => {
-        sendEvent({
-          ...event,
-          event,
-          from: portName,
-          port,
-          sender: port.sender,
-        });
-      });
-
-      port.onDisconnect.addListener(() => {
-        portMap.delete(portName);
-      });
-    });
-  };
-
-  const setPort = (portName, port) => {
-    portMap.set(portName, port);
-    if (port.setSendEvent) {
-      port.setSendEvent(sendEvent);
-    }
+    chrome.runtime.onConnect.addListener(onConnect);
   };
 
   return {
     initMessaging,
-    setPort,
+    connectPort: onConnect,
   };
 };

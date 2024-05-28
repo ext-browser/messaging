@@ -7,7 +7,7 @@ const handlers = getHandlers();
 
 const backgroundPort = getPort("background");
 
-handlers.setPort("background", backgroundPort);
+handlers.connectPort(backgroundPort);
 
 const messagingPort = getMessagingPort(backgroundPort.name, backgroundPort);
 

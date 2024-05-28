@@ -7,16 +7,12 @@ export const getPort = (name) => {
   const port = {
     name,
     sender: { type: name, tab: { id: null } },
+    isInternalPort: true,
     setSendEvent: (newSendEvent) => {
       sendEvent = newSendEvent;
     },
-    postMessage: (eventToPost) => {
-      sendEvent({
-        ...eventToPost,
-        from: name,
-        port,
-        sender: port.sender,
-      });
+    postMessage: (...args) => {
+      sendEvent(...args);
     },
     postInternalMessage: (eventToPost) => {
       callbackList.forEach((callback) => {
