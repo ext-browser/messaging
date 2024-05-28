@@ -1,6 +1,6 @@
-import { getWindowHandlers } from "../core/windowHandlers";
+import { getWindowMessagingPort } from "../core/windowMessagingPort";
 
-const windowMessagingPort = getWindowHandlers({
+const windowMessagingPort = getWindowMessagingPort({
   sendType: "CONTENT",
   reciverType: "CONTENT_WINDOW",
 });

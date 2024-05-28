@@ -1,15 +1,19 @@
 /* eslint-disable arrow-body-style */
 import { timeOutPromise } from "./utils";
 
-export const getHandlers = (name) => {
+export const getMessagingPort = (name, customPort) => {
   let port = null;
+  let onMessage = null;
+  let sendMessage = null;
+  let onMessageWithResponse = null;
+  let sendMessageWithResponse = null;
 
-  const initHandlers = () => {
-    port = chrome.runtime.connect({ name });
+  const init = () => {
+    port = customPort || chrome.runtime.connect({ name });
 
-    port.onDisconnect.addListener(initHandlers);
+    port.onDisconnect.addListener(init);
 
-    const onMessage = ({ withResponse }) => {
+    const onMessageInternal = ({ withResponse }) => {
       return (eventName, callback) => {
         port.onMessage.addListener(async (event) => {
           if (event.eventName === eventName) {
@@ -39,7 +43,7 @@ export const getHandlers = (name) => {
       };
     };
 
-    const sendMessage = ({ withResponse }) => {
+    const sendMessageInteral = ({ withResponse }) => {
       return (to, eventName, eventData) => {
         port.postMessage({ to, eventName, eventData });
 
@@ -61,13 +65,18 @@ export const getHandlers = (name) => {
       };
     };
 
-    return {
-      onMessage: onMessage({ withResponse: false }),
-      sendMessage: sendMessage({ withResponse: false }),
-      onMessageWithResponse: onMessage({ withResponse: true }),
-      sendMessageWithResponse: sendMessage({ withResponse: true }),
-    };
+    onMessage = onMessageInternal({ withResponse: false });
+    sendMessage = sendMessageInteral({ withResponse: false });
+    onMessageWithResponse = onMessageInternal({ withResponse: true });
+    sendMessageWithResponse = sendMessageInteral({ withResponse: true });
   };
 
-  return initHandlers();
+  init();
+
+  return {
+    onMessage,
+    sendMessage,
+    onMessageWithResponse,
+    sendMessageWithResponse,
+  };
 };

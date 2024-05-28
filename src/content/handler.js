@@ -1,10 +1,10 @@
 /* eslint-disable prefer-destructuring */
-import { getHandlers } from "../core/handler";
-import { getWindowHandlers } from "../core/windowHandlers";
+import { getMessagingPort } from "../core/messagingPort";
+import { getWindowMessagingPort } from "../core/windowMessagingPort";
 
-const messagingPort = getHandlers("content");
+const messagingPort = getMessagingPort("content");
 
-const windowMessagingPort = getWindowHandlers({
+const windowMessagingPort = getWindowMessagingPort({
   sendType: "CONTENT_WINDOW",
   reciverType: "CONTENT",
 });

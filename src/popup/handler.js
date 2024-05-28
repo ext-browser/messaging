@@ -1,7 +1,7 @@
 /* eslint-disable prefer-destructuring */
-import { getHandlers } from "../core/handler";
+import { getMessagingPort } from "../core/messagingPort";
 
-const messagingPort = getHandlers(`popup`);
+const messagingPort = getMessagingPort(`popup`);
 
 export const onMessage = messagingPort.onMessage;
 export const sendMessage = messagingPort.sendMessage;

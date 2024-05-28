@@ -1,6 +1,6 @@
 /* eslint-disable arrow-body-style */
 
-export const getWindowHandlers = ({ sendType, reciverType }) => {
+export const getWindowMessagingPort = ({ sendType, reciverType }) => {
   return {
     onMessage: (eventName, callback) => {
       window.addEventListener("message", (event) => {
