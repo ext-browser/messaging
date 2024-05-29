@@ -4,12 +4,14 @@ import { computePortName } from "./utils";
 export const getHandlers = () => {
   const portMap = new Map();
 
-  const onConnect = (port) => {
+  const onConnect = (port, { onPortDisconnect } = {}) => {
     let portName = port.name;
 
     if (portName === "content") {
       portName = `${portName}:${port.sender.tab.id}`;
     }
+
+    const tabId = portName.includes(":") ? portName.split(":")[1] : null;
 
     portMap.set(portName, port);
 
@@ -19,6 +21,7 @@ export const getHandlers = () => {
         ...event,
         event,
         from: portName,
+        fromTabId: tabId,
         port,
         sender: port.sender,
       };
@@ -46,12 +49,15 @@ export const getHandlers = () => {
 
       port.onDisconnect.addListener(() => {
         portMap.delete(portName);
+        if (onPortDisconnect) {
+          onPortDisconnect(port);
+        }
       });
     }
   };
 
-  const initMessaging = () => {
-    chrome.runtime.onConnect.addListener(onConnect);
+  const initMessaging = ({ onPortDisconnect } = {}) => {
+    chrome.runtime.onConnect.addListener((port) => onConnect(port, { onPortDisconnect }));
   };
 
   return {
