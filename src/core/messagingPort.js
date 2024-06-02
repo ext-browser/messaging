@@ -13,7 +13,7 @@ export const getMessagingPort = (name, customPort) => {
 
     onMessage = (eventName, callback) => {
       port.onMessage.addListener(async (event) => {
-        if (event.eventName === eventName) {
+        if (event?.eventName === eventName) {
           try {
             const response = await callback(event.eventData, event);
 
@@ -41,10 +41,10 @@ export const getMessagingPort = (name, customPort) => {
       return Promise.race([
         new Promise((resolve, reject) => {
           port.onMessage.addListener((event) => {
-            if (event.eventName === `${eventName}::RESPONSE`) {
+            if (event?.eventName === `${eventName}::RESPONSE`) {
               resolve(event.eventData, event);
             }
-            if (event.eventName === `${eventName}::RESPONSE_ERROR`) {
+            if (event?.eventName === `${eventName}::RESPONSE_ERROR`) {
               reject(event.eventData, event);
             }
           });
