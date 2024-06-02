@@ -4,7 +4,7 @@ import { computePortName } from "./utils";
 export const getHandlers = () => {
   const portMap = new Map();
 
-  const onConnect = (port, { onPortDisconnect } = {}) => {
+  const onConnect = (port, { onPortDisconnect, onPortConnect } = {}) => {
     let portName = port.name;
 
     if (portName === "content") {
@@ -50,14 +50,18 @@ export const getHandlers = () => {
       port.onDisconnect.addListener(() => {
         portMap.delete(portName);
         if (onPortDisconnect) {
-          onPortDisconnect(port);
+          onPortDisconnect({ portName, port, originPortName: port.name, tabId });
         }
       });
     }
+
+    if(onPortConnect) {
+      onPortConnect({ portName, port, originPortName: port.name, tabId });
+    }
   };
 
-  const initMessaging = ({ onPortDisconnect } = {}) => {
-    chrome.runtime.onConnect.addListener((port) => onConnect(port, { onPortDisconnect }));
+  const initMessaging = ({ onPortDisconnect, onPortConnect } = {}) => {
+    chrome.runtime.onConnect.addListener((port) => onConnect(port, { onPortDisconnect, onPortConnect }));
   };
 
   return {
