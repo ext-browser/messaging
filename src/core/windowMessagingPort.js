@@ -8,9 +8,9 @@ export const getWindowMessagingPort = ({ sendType, reciverType }) => {
 
         if (
           event?.data?.type === reciverType &&
-          event?.data.eventName === eventName
+          event?.data?.eventName === eventName
         ) {
-          const parsedData = event.data?.eventData;
+          const parsedData = event.data.eventData;
 
           callback(parsedData, event);
         }
