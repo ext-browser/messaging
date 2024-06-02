@@ -30,6 +30,5 @@ export default {
       sourcemap: isDevelopment,
     },
   ],
-  // @deep
-  // plugins: isDevelopment ? devPlugins : prodPlugins,
+  plugins: isDevelopment ? devPlugins : prodPlugins,
 };
