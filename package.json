@@ -1,6 +1,6 @@
 {
   "name": "@ext-browser/messaging",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "Broswer Extension Messaging APIs Made Easy",
   "scripts": {
     "build": "rollup -c",
@@ -10,6 +10,11 @@
     "lint:fix": "npm run lint -- --fix"
   },
   "type": "module",
+  "files": [
+    "README.md",
+    "package.json",
+    "dist/**/*"
+  ],
   "exports": {
     ".": {
       "import": "./dist/index.esm.js",
