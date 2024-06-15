@@ -5,14 +5,21 @@ export const getMessagingPort = (name, customPort) => {
   let port = null;
   let onMessage = null;
   let sendMessage = null;
+  const cbList = [];
 
   const init = () => {
     port = customPort || chrome.runtime.connect({ name });
 
     port.onDisconnect.addListener(init);
 
+    port.onMessage.addListener((event) => {
+      cbList.forEach((cb) => {
+        cb(event);
+      });
+    });
+
     onMessage = (eventName, callback) => {
-      port.onMessage.addListener(async (event) => {
+      cbList.push(async (event) => {
         if (event?.eventName === eventName) {
           try {
             const response = await callback(event.eventData, event);
@@ -40,7 +47,7 @@ export const getMessagingPort = (name, customPort) => {
 
       return Promise.race([
         new Promise((resolve, reject) => {
-          port.onMessage.addListener((event) => {
+          cbList.push((event) => {
             if (event?.eventName === `${eventName}::RESPONSE`) {
               resolve(event.eventData, event);
             }
