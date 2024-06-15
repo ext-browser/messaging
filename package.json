@@ -1,6 +1,6 @@
 {
   "name": "@ext-browser/messaging",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "description": "Broswer Extension Messaging APIs Made Easy",
   "scripts": {
     "build": "rollup -c",
