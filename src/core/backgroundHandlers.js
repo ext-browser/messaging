@@ -22,7 +22,6 @@ export const getHandlers = () => {
         event,
         from: portName,
         fromTabId: tabId,
-        port,
         sender: port.sender,
       };
 
@@ -33,7 +32,7 @@ export const getHandlers = () => {
           portMap.get(to).postMessage(eventToSend);
         }
       } else {
-        eventToSend.port.postMessage({
+        port.postMessage({
           ...eventToSend,
           to: eventToSend.from,
           eventName: `${eventToSend.eventName}::RESPONSE_ERROR`,
