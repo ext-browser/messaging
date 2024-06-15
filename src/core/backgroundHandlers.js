@@ -37,7 +37,7 @@ export const getHandlers = () => {
           ...eventToSend,
           to: eventToSend.from,
           eventName: `${eventToSend.eventName}::RESPONSE_ERROR`,
-          eventData: "Port not found",
+          eventData: `Port not found: ${to}`,
         });
       }
     };
