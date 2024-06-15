@@ -3,6 +3,7 @@
   "version": "0.0.8",
   "description": "Broswer Extension Messaging APIs Made Easy",
   "scripts": {
+    "prebuild": "rm -rf dist",
     "build": "rollup -c",
     "dev": "rollup -c --environment BUILD:development",
     "dev:watch": "npm run dev -- --watch",
