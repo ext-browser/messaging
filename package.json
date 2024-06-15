@@ -1,6 +1,6 @@
 {
   "name": "@ext-browser/messaging",
-  "version": "0.0.9",
+  "version": "0.0.10",
   "description": "Broswer Extension Messaging APIs Made Easy",
   "scripts": {
     "prebuild": "rm -rf dist",
