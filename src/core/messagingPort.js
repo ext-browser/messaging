@@ -63,6 +63,15 @@ export const getMessagingPort = (name, customPort) => {
 
   init();
 
+  if (name === "content") {
+    chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+      if (request?.eventName === "RECONNECT_CONTENT_MESSAGING_PORT") {
+        init();
+        sendResponse(true);
+      }
+    });
+  }
+
   return {
     onMessage,
     sendMessage,

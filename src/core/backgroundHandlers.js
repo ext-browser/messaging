@@ -47,21 +47,41 @@ export const getHandlers = () => {
     } else {
       port.onMessage.addListener(sendEvent);
 
-      port.onDisconnect.addListener(() => {
+      port.onDisconnect.addListener(async () => {
         portMap.delete(portName);
+
+        try {
+          if (portName.includes("content")) {
+            const res = await chrome.tabs.sendMessage(Number(tabId), {
+              eventName: "RECONNECT_CONTENT_MESSAGING_PORT",
+            });
+
+            if (res) {
+              return;
+            }
+          }
+        } catch (error) {}
+
         if (onPortDisconnect) {
-          onPortDisconnect({ portName, port, originPortName: port.name, tabId });
+          onPortDisconnect({
+            portName,
+            port,
+            originPortName: port.name,
+            tabId,
+          });
         }
       });
     }
 
-    if(onPortConnect) {
+    if (onPortConnect) {
       onPortConnect({ portName, port, originPortName: port.name, tabId });
     }
   };
 
   const initMessaging = ({ onPortDisconnect, onPortConnect } = {}) => {
-    chrome.runtime.onConnect.addListener((port) => onConnect(port, { onPortDisconnect, onPortConnect }));
+    chrome.runtime.onConnect.addListener((port) =>
+      onConnect(port, { onPortDisconnect, onPortConnect }),
+    );
   };
 
   return {
